@@ -1,0 +1,19 @@
+{
+  "model_id": "ai-sage/GigaChat3-10B-A1.8B-bf16",
+  "probe_layers": [3, 9, 15],
+  "n_uncertainty_scalars": 18,
+  "pca_first_token": 32,
+  "pca_mean_token": 24,
+  "logistic_regression_C": 0.07,
+  "class_weight": null,
+  "gen_weight": 2,
+  "direction_source": {
+    "L3": "old",
+    "L3_mean": "old",
+    "L9": "old",
+    "L9_mean": "gen",
+    "L15": "gen",
+    "L15_mean": "gen"
+  },
+  "public_test_prauc": 0.8493
+}

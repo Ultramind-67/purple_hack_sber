@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+.ipynb_checkpoints/
+
+# Logs and temporary files
+*.log
+*.bak
+nohup.out
+
+# Local shell/container files that should never be part of a project repo
+.bash_history
+.bash_logout
+.bashrc
+.profile
+workspace/
+
+# Heavy local artifacts. Keep instructions in data/README.md and features/README.md.
+model/
+*.pkl
+*.joblib
+*.npz
+features/*.npz
+
+# Generated or competition-private data. Do not publish unless the data license allows it.
+data/bench/*private*.csv
+data/bench/*scores*.csv
+data/generated/*.csv

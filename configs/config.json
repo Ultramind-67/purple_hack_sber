@@ -1,0 +1,13 @@
+{
+  "model_id": "ai-sage/GigaChat3-10B-A1.8B-bf16",
+  "probe_layers": [3, 15],
+  "n_scalars": 18,
+  "pca_components": {"first": 24, "mean": 16},
+  "regularization": 0.05,
+  "class_weight": null,
+  "gen_oversample": 1,
+  "direction_source": {
+    "L3": "train", "L3_mean": "train",
+    "L15": "gen", "L15_mean": "gen"
+  }
+}
