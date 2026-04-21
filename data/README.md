@@ -1,8 +1,8 @@
-# Data
+# Данные 📦
 
-This directory stores local hackathon datasets and generated training artifacts.
+Эта папка хранит локальные датасеты хакатона и training artifacts. Для публичного GitHub лучше держать здесь только этот README и небольшие примеры, если лицензия данных это разрешает.
 
-Expected layout:
+## Ожидаемая структура
 
 ```text
 data/
@@ -20,6 +20,11 @@ data/
     └── training_data_labeled_subtle.csv
 ```
 
-Do not publish private benchmark files, generated labels, or competition data unless the data license explicitly allows it. The repository keeps code and documentation reproducible without requiring those files to be public.
+## 🔐 Что не стоит публиковать
 
-For a public GitHub release, prefer keeping only this README plus any clearly redistributable sample data.
+- private benchmark файлы;
+- prediction scores для private benchmark;
+- generated labels и synthetic training artifacts, если нет явного разрешения на публикацию;
+- любые данные, полученные в рамках соревнования и не предназначенные для публичного распространения.
+
+Код и документация остаются воспроизводимыми без публикации этих файлов: локально их можно восстановить из разрешенного источника или держать вне git.

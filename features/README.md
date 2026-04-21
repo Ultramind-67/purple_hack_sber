@@ -1,18 +1,22 @@
-# Cached Features
+# Feature-кэши ⚡
 
-The `.npz` files in this directory are local feature caches extracted from GigaChat hidden states and logits. They are useful because recomputing all activations is GPU-heavy.
+`.npz` файлы в этой папке — локальные кэши признаков, извлеченных из hidden states и logits GigaChat. Они нужны, чтобы быстро переобучать и проверять легкий классификатор без повторного тяжелого feature extraction.
 
-Expected files:
+## Ожидаемые файлы
 
 - `train_all_layers.npz`
 - `gen_all_layers.npz`
 - `test_all_layers.npz`
 
-These files can be hundreds of megabytes and should not be committed to a public GitHub repository. Keep them locally, store them in external artifact storage, or regenerate them with the training pipeline when the required data and GPU environment are available.
+Эти артефакты могут занимать сотни мегабайт, поэтому их не стоит коммитить в публичный GitHub. Лучше хранить их локально, положить во внешнее artifact storage или регенерировать в GPU-окружении при наличии исходных данных.
 
-The classifier code expects this directory by default:
+## Быстрая проверка
+
+Если кэши лежат на месте, public-validation score можно воспроизвести так:
 
 ```bash
 export PYTHONPATH="$PWD/src"
-python -m hallucination_detector.score_private
+bash scripts/train.sh
 ```
+
+Ожидаемый ориентир для текущего конфига: `Public PR-AUC: 0.8493`.

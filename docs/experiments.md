@@ -1,67 +1,69 @@
-# Experiment History
+# История экспериментов 🧪
 
-This project started from the competition baseline idea: use signals already available during a GigaChat forward pass instead of verifying answers with retrieval, another LLM, or external APIs. The final detector reached 3rd place in the hackathon track with a private PR-AUC of about 0.8541.
+Проект вырос из идеи baseline-решения для хакатона: использовать сигналы, которые уже доступны во время forward pass GigaChat, вместо внешней проверки через поиск, другую LLM или API. Финальный детектор занял 3 место в треке и показал около `0.8541` PR-AUC на private/final бенчмарке.
 
-## Track Constraints
+## 🎯 Ограничения трека
 
-- Target: factual hallucination detection for GigaChat-generated answers.
-- Main metric: PR-AUC.
-- Speed mattered as a tie-breaker.
-- Runtime external APIs, RAG, and LLM-as-a-judge verification were not suitable for the detector.
-- One forward pass through `ai-sage/GigaChat3-10B-A1.8B-bf16` could be used to collect internal signals.
+- Цель: детекция фактологических галлюцинаций в ответах GigaChat.
+- Главная метрика: PR-AUC.
+- Скорость учитывалась как tie-breaker.
+- Runtime external APIs, RAG и LLM-as-a-judge не подходили для финального детектора.
+- Один forward pass через `ai-sage/GigaChat3-10B-A1.8B-bf16` можно было использовать для сбора внутренних сигналов.
 
-## Iteration 1: Uncertainty Baseline
+## 1. Uncertainty baseline
 
-The first useful baseline used answer-token logits:
+Первый полезный baseline строился на logits токенов ответа:
 
 - mean/min/max/std token log-probability;
 - entropy statistics;
-- top-1 and top-5 probabilities;
-- top-1 vs top-2 margin;
-- answer length and low-confidence token share.
+- top-1 и top-5 probabilities;
+- margin между top-1 и top-2;
+- длина ответа и доля low-confidence токенов.
 
-This was fast and simple, but plateaued around PR-AUC `~0.80`.
+Подход был быстрым и простым, но упирался примерно в PR-AUC `~0.80`.
 
-## Iteration 2: Hidden-State Probing
+## 2. Hidden-state probing
 
-The next step added hidden states from transformer layers. The detector reads representations during teacher forcing on `prompt + answer`, then trains a shallow classifier on the extracted vectors.
+Следующий шаг — добавить hidden states из transformer layers. Детектор читает представления при teacher forcing на `prompt + answer`, затем обучает небольшой классификатор поверх извлеченных векторов.
 
-Late-layer probes (`L20`, `L25`) improved the baseline to `0.8202`, but were not the best signal. Early and middle layers turned out to be stronger.
+Late-layer probes (`L20`, `L25`) улучшили baseline до `0.8202`, но оказались не лучшим источником сигнала. Более сильными стали ранние и средние слои.
 
-## Iteration 3: Contrast Directions
+## 3. Contrast directions
 
-For each selected layer representation, the pipeline computes a contrast direction:
+Для каждого выбранного layer representation считается contrast direction:
 
 ```text
 direction = mean(hidden_state | hallucination) - mean(hidden_state | correct)
 ```
 
-The projection onto this normalized direction becomes a compact feature. This gave a strong one-dimensional signal per representation and reduced dependence on a large nonlinear classifier.
+Проекция на нормированное направление становится компактным признаком. Это дало сильный одномерный сигнал на каждое представление и снизило зависимость от тяжелого nonlinear-классификатора.
 
-## Iteration 4: Synthetic Data Augmentation
+## 4. Synthetic data augmentation
 
-Additional factual questions were generated offline, answered by GigaChat, and verified offline. The generated set was useful for estimating cleaner contrast directions. In experiments, the generated-data direction improved public PR-AUC to `0.8346`.
+Дополнительные фактологические вопросы генерировались offline, затем на них отвечал GigaChat, а корректность ответов проверялась offline-разметкой. Generated set оказался полезен для оценки более чистых contrast directions.
 
-This data is not used as an external service during inference; it only expands the training signal.
+На экспериментах generated-data direction поднял public PR-AUC до `0.8346`.
 
-## Final Configuration
+Важно: эти данные не используются как внешний сервис во время inference. Они только расширяют training signal.
 
-The strongest public-validation setup used:
+## 🏁 Финальная конфигурация
+
+Лучшая public-validation конфигурация:
 
 - probe layers: `L3`, `L9`, `L15`;
-- first-answer-token and answer-mean representations;
+- first-answer-token и answer-mean representations;
 - 18 uncertainty scalars;
-- PCA dimensions: 32 for first-token probes, 24 for mean probes;
-- logistic regression with `C=0.07`;
-- mixed direction sources from original and generated data.
+- PCA dimensions: 32 для first-token probes, 24 для mean probes;
+- logistic regression с `C=0.07`;
+- mixed direction sources из original и generated data.
 
-Public PR-AUC from `configs/best_config.json`: `0.8493`.
+Public PR-AUC из `configs/best_config.json`: `0.8493`.
 
-Final hackathon/private result: `~0.8541`, 3rd place.
+Финальный/private результат: `~0.8541`, 3 место.
 
-## What Did Not Work As Well
+## Что сработало хуже
 
-- A pure uncertainty-only detector was too shallow.
-- Late layers alone were weaker than early/middle layer probes.
-- Heavier classifiers were not clearly worth the extra complexity for this setup.
-- Runtime external validation would violate the intended speed and architecture constraints.
+- Pure uncertainty-only detector был слишком слабым.
+- Late layers сами по себе оказались хуже early/mid layer probes.
+- Более тяжелые классификаторы не дали очевидного выигрыша относительно сложности.
+- Runtime external validation противоречил ограничениям по скорости и архитектуре решения.
